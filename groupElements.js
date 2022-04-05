@@ -2,8 +2,8 @@ const areArraysEqual = function (array1, array2) {
   if (array1.length !== array2.length) {
     return false;
   }
-  const length = Math.max(array1.length, array2.length);
-  for (let index = 0; index < length; index++) {
+
+  for (let index = 0; index < array1.length; index++) {
     if (array1[index] !== array2[index]) {
       return false;
     }
@@ -11,14 +11,19 @@ const areArraysEqual = function (array1, array2) {
   return true;
 };
 
+const areEqual = function (element1, element2) {
+  if (Array.isArray(element1)) {
+    return areArraysEqual(element1, element2);
+  }
+  if (element1 === element2) {
+    return true;
+  }
+  return false;
+};
+
 const includes = function (element, array) {
   for (let index = 0; index < array.length; index++) {
-    if (element.length !== undefined) {
-      if (areArraysEqual(element, array[index])) {
-        return true;
-      }
-    }
-    if (element === array[index]) {
+    if (areEqual(element, array[index])) {
       return true;
     }
   }
