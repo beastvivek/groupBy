@@ -1,95 +1,53 @@
-const areArraysEqual = function (array1, array2) {
-  if (array1.length !== array2.length) {
-    return false;
-  }
-
-  for (let index = 0; index < array1.length; index++) {
-    if (array1[index] !== array2[index]) {
-      return false;
-    }
-  }
-  return true;
-};
+const isArray = function (array) {
+  return Array.isArray(array);
+}
 
 const areEqual = function (element1, element2) {
-  if (Array.isArray(element1)) {
-    return areArraysEqual(element1, element2);
+  if (!isArray(element1) || !isArray(element2)) {
+    return element1 === element2;
   }
-  if (element1 === element2) {
+  if (element1.length !== element2.length) {
+    return false;
+  }
+  if (element1.length === 0) {
     return true;
   }
-  return false;
+  if (!areEqual(element1[0], element2[0])) {
+    return false;
+  }
+  return areEqual(element1.slice(1), element2.slice(1));
 };
 
-const includes = function (element, array) {
+const getIndexOfGroup = function (element, array) {
   for (let index = 0; index < array.length; index++) {
-    if (areEqual(element, array[index])) {
-      return true;
+    const group = array[index];
+    if (areEqual(element, group[0])) {
+      return index;
     }
   }
-  return false;
+  return -1;
 };
 
-const uniqueElements = function (elements) {
-  const unique = [];
+const groupSimilarElements = function (elements) {
+  const similarElementGroups = [];
   for (let index = 0; index < elements.length; index++) {
-    if (!includes(elements[index], unique)) {
-      unique.push(elements[index]);
+    let groupIndex = getIndexOfGroup(elements[index], similarElementGroups);
+    if (groupIndex < 0) {
+      groupIndex = similarElementGroups.length;
+      similarElementGroups.push([]);
     }
+    similarElementGroups[groupIndex].push(elements[index]);
   }
-  return unique;
-};
-
-const countOccurrences = function (element, array) {
-  let count = 0;
-  for (let index = 0; index < array.length; index++) {
-    if (element.length !== undefined) {
-      count += areArraysEqual(element, array[index]) ? 1 : 0;
-    } else if (element === array[index]) {
-      count += 1;
-    }
-  }
-  return count;
-};
-
-const countUnique = function (unique, elements) {
-  const count = [];
-  for (let index = 0; index < unique.length; index++) {
-    count[index] = countOccurrences(unique[index], elements);
-  }
-  return count;
-};
-
-const repeat = function (element, count) {
-  const repeatedElement = [];
-  for (let counter = 1; counter <= count; counter++) {
-    repeatedElement.push(element);
-  }
-  return repeatedElement;
-};
-
-const repeatElements = function (unique, count) {
-  const groupedElements = [];
-  for (let index = 0; index < unique.length; index++) {
-    groupedElements[index] = repeat(unique[index], count[index]);
-  }
-  return groupedElements;
-};
-
-const groupElements = function (elements) {
-  const unique = uniqueElements(elements);
-  const count = countUnique(unique, elements);
-  return repeatElements(unique, count);
+  return similarElementGroups;
 };
 
 const main = function () {
-  console.log(groupElements([1, 2, 1]));
-  console.log(groupElements([1, 2, 3, 1, 2, 4]));
-  console.log(groupElements([[1, 1], 1, [1, 1], 1]));
-  console.log(groupElements([[2, 1], 1, [1, 2], 1, [1, 2, 3], [1]]));
-  console.log(
-    groupElements([[2, 1], 1, [1, 2], 1, [1, 2, 3], [1], [1, 2, 3], [1]])
-  );
+  console.log(groupSimilarElements([1, 2, 1])); // [[1, 1], [2]]
+  console.log(groupSimilarElements([1, 2, 3, 1, 2, 4])); // [[1, 1], [2, 2], [3], [4]]
+  console.log(groupSimilarElements([[1, 1], 1, [1, 1], 1])); // [[[1, 1], [1, 1]], [1, 1]]
+  console.log(groupSimilarElements([[2, 1], 1, [1, 2], 1, [1, 2, 3], [1]])); // [[[2, 1]], [1, 1], [[1, 2]], [[1, 2, 3]], [[1]]]
+  console.log(groupSimilarElements([1, [1, 2], 1, [1, 2, 3], [1], [1, 2, 3], [1]])); // [[1, 1], [[1, 2]], [[1, 2, 3], [1, 2, 3]], [[1], [1]]]
+  console.log(groupSimilarElements([[2, 1], [1, 2], [[1], [2]], [[1], [2]]])); // [[[2, 1]], [[1, 2]], [[[1], [2]], [[[1], [2]]]]]
 };
 
 main();
